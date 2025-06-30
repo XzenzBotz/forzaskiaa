@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Heart Button Enhanced</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #fce4ec, #ffe0f0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .button-container {
+      position: relative;
+      display: inline-block;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    .cool-button {
+      background: linear-gradient(45deg, #ff6b81, #ff4757);
+      color: white;
+      padding: 1.25rem 2.5rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .cool-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 30px rgba(255, 71, 87, 0.5);
+      animation: wiggle 0.3s ease-in-out;
+    }
+
+    .cool-button:active {
+      transform: scale(0.98);
+    }
+
+    .heart {
+      position: absolute;
+      background-color: #ff6b81;
+      transform: rotate(-45deg);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #ff6b81;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -50%;
+      left: 0;
+    }
+
+    .heart::after {
+      top: 0;
+      left: 50%;
+    }
+
+    @keyframes hearts-fly {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.8) rotate(-45deg);
+      }
+      20% {
+        opacity: 1;
+        transform: scale(1) rotate(-45deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--x), var(--y)) scale(0.5) rotate(-45deg);
+      }
+    }
+
+    @keyframes pulse-heart {
+      0%, 100% { transform: scale(0.9); }
+      50% { transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes wiggle {
+      0% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+      100% { transform: rotate(0); }
+    }
+
+    .message-box-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .message-box-overlay.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .message-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .message-box-overlay.visible .message-box {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .message-box h2 {
+      font-size: 1.5rem;
+      color: #ff4757;
+      margin-bottom: 0.5rem;
+    }
+
+    .message-box p {
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .message-box button {
+      margin-top: 1rem;
+      background: #ff6b81;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .message-box button:hover {
+      background: #ff4757;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="button-container">
+    <button class="cool-button">Coba kamu pencet</button>
+
+    <!-- Hati animasi -->
+    <div class="heart" style="width:20px; height:20px; top:60%; left:10%; --x:-60px; --y:-100px;"></div>
+    <div class="heart" style="width:18px; height:18px; top:50%; left:80%; --x:60px; --y:-90px;"></div>
+    <div class="heart" style="width:22px; height:22px; top:40%; left:30%; --x:-30px; --y:-110px;"></div>
+    <div class="heart" style="width:16px; height:16px; top:70%; left:60%; --x:40px; --y:-80px;"></div>
+    <div class="heart" style="width:19px; height:19px; top:30%; left:45%; --x:-20px; --y:-120px;"></div>
+  </div>
+
+  <div id="messageBoxOverlay" class="message-box-overlay">
+    <div class="message-box">
+      <h2>Okee makasih ><</h2>
+      <p>muga muga koe iso nrimo aku nggeh, aku ngarep tenan karo kowe, ojo berpaling sek neng liyane :)</p>
+      <button id="closeMessageBox">Oke</button>
+    </div>
+  </div>
+
+  <script>
+    const coolButton = document.querySelector('.cool-button');
+    const hearts = document.querySelectorAll('.heart');
+    const overlay = document.getElementById('messageBoxOverlay');
+    const closeBtn = document.getElementById('closeMessageBox');
+
+    function triggerHearts() {
+      hearts.forEach((heart, i) => {
+        heart.style.animation = `hearts-fly 1.5s ease-out forwards ${i * 0.2}s, pulse-heart 2s infinite ease-out`;
+        heart.style.opacity = '1';
+      });
+    }
+
+    function resetHearts() {
+      hearts.forEach(heart => {
+        heart.style.animation = 'none';
+        heart.offsetHeight;
+        heart.style.opacity = '0';
+      });
+    }
+
+    document.querySelector('.button-container').addEventListener('mouseenter', triggerHearts);
+    document.querySelector('.button-container').addEventListener('mouseleave', resetHearts);
+
+    coolButton.addEventListener('click', () => {
+      overlay.classList.add('visible');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      overlay.classList.remove('visible');
+    });
+
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('visible');
+    });
+
+    resetHearts(); // set awal
+  </script>
+
+</body>
+</html>
