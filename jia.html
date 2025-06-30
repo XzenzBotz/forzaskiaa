@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tombol Hati Keren</title>
+    <!-- Memuat Tailwind CSS untuk styling dasar -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Mengatur font global */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fce4ec 0%, #ffe0f0 100%); /* Latar belakang gradien pink lembut */
+            overflow: hidden; /* Mencegah scrollbar jika animasi keluar batas */
+            margin: 0;
+            padding: 20px; /* Tambahkan padding agar tombol tidak terlalu mepet tepi pada layar kecil */
+            box-sizing: border-box; /* Pastikan padding tidak menambah ukuran total */
+        }
+
+        /* Styling untuk container tombol */
+        .button-container {
+            position: relative;
+            display: inline-block;
+            overflow: hidden; /* Pastikan hati tidak keluar dari area tombol secara tiba-tiba */
+            border-radius: 9999px; /* Membuat container lebih bulat untuk menyesuaikan tombol */
+        }
+
+        /* Styling dasar untuk tombol */
+        .cool-button {
+            background: linear-gradient(45deg, #ff6b81, #ff4757); /* Gradien pink-merah yang menarik */
+            color: white;
+            padding: 1.25rem 2.5rem; /* Padding yang lebih besar untuk tombol yang menonjol */
+            border: none;
+            border-radius: 9999px; /* Bentuk pil atau sangat bulat */
+            font-size: 1.5rem; /* Ukuran font lebih besar */
+            font-weight: 700; /* Tebal */
+            cursor: pointer;
+            position: relative;
+            z-index: 10; /* Pastikan tombol di atas elemen hati */
+            transition: all 0.3s ease; /* Transisi halus untuk hover */
+            box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3); /* Bayangan lembut */
+            outline: none; /* Hilangkan outline fokus bawaan */
+        }
+
+        /* Efek hover pada tombol */
+        .cool-button:hover {
+            transform: translateY(-5px) scale(1.05); /* Sedikit naik dan membesar */
+            box-shadow: 0 15px 30px rgba(255, 71, 87, 0.4); /* Bayangan lebih intens */
+            background: linear-gradient(45deg, #ff4757, #ff6b81); /* Balik gradien */
+        }
+
+        /* Efek klik aktif pada tombol */
+        .cool-button:active {
+            transform: translateY(-2px) scale(1.02); /* Sedikit kembali ke bawah */
+            box-shadow: 0 8px 15px rgba(255, 71, 87, 0.2); /* Bayangan lebih kecil */
+        }
+
+        /* Styling untuk elemen hati */
+        .heart {
+            position: absolute;
+            background-color: #ff6b81; /* Warna hati */
+            transform: rotate(-45deg); /* Memutar hati */
+            opacity: 0; /* Awalnya tidak terlihat */
+            pointer-events: none; /* Agar tidak menghalangi klik tombol */
+            z-index: 5; /* Di bawah tombol */
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #ff6b81; /* Warna hati */
+            border-radius: 50%; /* Membuat lingkaran */
+        }
+
+        .heart::before {
+            top: -50%;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: 50%;
+        }
+
+        /* Animasi hati terbang (saat hover) */
+        @keyframes hearts-fly {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0) rotate(-45deg);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(-45deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(0.5) rotate(-45deg); /* Menggunakan variabel CSS */
+            }
+        }
+
+        /* Animasi detak jantung untuk setiap hati secara individual (saat hover dan terbang) */
+        @keyframes pulse-heart {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.0); }
+            100% { transform: scale(0.8); }
+        }
+
+        /* Styling untuk message box (modal) */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Latar belakang gelap transparan */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Pastikan di atas semua elemen lain */
+            visibility: hidden; /* Awalnya tidak terlihat */
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
+
+        .message-box-overlay.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .message-box {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem; /* Sudut lebih membulat */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 90%;
+            width: 400px; /* Lebar maksimum untuk kotak pesan */
+            position: relative; /* Untuk tombol close */
+            transform: translateY(-20px); /* Efek masuk */
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .message-box-overlay.visible .message-box {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .message-box h2 {
+            font-size: 1.875rem; /* Ukuran judul lebih besar */
+            font-weight: 700;
+            color: #ff4757; /* Warna teks sesuai tema */
+            margin-bottom: 1rem;
+        }
+
+        .message-box p {
+            font-size: 1.125rem;
+            color: #333;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .message-box button {
+            background-color: #ff6b81;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .message-box button:hover {
+            background-color: #ff4757;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button class="cool-button">Coba kamu pencet</button>
+        <!-- Hati-hati yang akan muncul dan terbang -->
+        <div class="heart" style="width: 20px; height: 20px; top: 50%; left: 10%; --x: -50px; --y: -80px; animation-delay: 0s;"></div>
+        <div class="heart" style="width: 18px; height: 18px; top: 40%; left: 80%; --x: 60px; --y: -90px; animation-delay: 0.2s;"></div>
+        <div class="heart" style="width: 22px; height: 22px; top: 60%; left: 30%; --x: -30px; --y: -100px; animation-delay: 0.4s;"></div>
+        <div class="heart" style="width: 16px; height: 16px; top: 70%; left: 60%; --x: 40px; --y: -70px; animation-delay: 0.6s;"></div>
+        <div class="heart" style="width: 19px; height: 19px; top: 30%; left: 45%; --x: -20px; --y: -110px; animation-delay: 0.8s;"></div>
+    </div>
+
+    <!-- Message Box Overlay -->
+    <div id="messageBoxOverlay" class="message-box-overlay">
+        <div class="message-box">
+            <h2>Okee makasih ><</h2>
+            <p>muga muga koe iso nrimo aku nggeh, aku ngarep tenan karo kowe, ojo berpaling sek neng liyane :).</p>
+            <button id="closeMessageBox">Oke</button>
+        </div>
+    </div>
+
+    <script>
+        const coolButton = document.querySelector('.cool-button');
+        const hearts = document.querySelectorAll('.heart');
+        const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+        const closeMessageBoxButton = document.getElementById('closeMessageBox');
+
+        // Fungsi untuk me-reset animasi hati saat tombol tidak di-hover
+        function resetHeartAnimations() {
+            hearts.forEach(heart => {
+                // Hapus animasi hearts-fly
+                heart.style.animation = 'none';
+                // Paksa reflow untuk me-reset animasi
+                heart.offsetHeight; /* trigger reflow */
+                // Tambahkan kembali animasi pulse-heart yang selalu aktif (ini untuk detak jantung kecil)
+                heart.style.animation = 'pulse-heart 2s infinite ease-out';
+                // Atur kembali opacity ke 0
+                heart.style.opacity = '0';
+            });
+        }
+
+        // Menambahkan event listener untuk mouseleave pada container tombol
+        document.querySelector('.button-container').addEventListener('mouseleave', () => {
+            resetHeartAnimations();
+        });
+
+        // Menambahkan event listener untuk mouseenter pada container tombol
+        document.querySelector('.button-container').addEventListener('mouseenter', () => {
+            hearts.forEach(heart => {
+                // Terapkan kembali animasi hearts-fly saat di-hover, kombinasikan dengan pulse-heart
+                heart.style.animation = `hearts-fly 1.5s infinite ease-out ${heart.style.animationDelay}, pulse-heart 2s infinite ease-out`;
+                heart.style.opacity = '1'; // Pastikan hati terlihat saat animasi dimulai
+            });
+        });
+
+        // Event listener untuk klik tombol
+        coolButton.addEventListener('click', () => {
+            messageBoxOverlay.classList.add('visible'); // Tampilkan message box
+        });
+
+        // Event listener untuk menutup message box
+        closeMessageBoxButton.addEventListener('click', () => {
+            messageBoxOverlay.classList.remove('visible'); // Sembunyikan message box
+        });
+
+        // Event listener untuk menutup message box jika klik di luar kotak (overlay)
+        messageBoxOverlay.addEventListener('click', (event) => {
+            if (event.target === messageBoxOverlay) {
+                messageBoxOverlay.classList.remove('visible');
+            }
+        });
+
+        // Pastikan animasi awal hati tersembunyi
+        resetHeartAnimations();
+    </script>
+</body>
+</html>
